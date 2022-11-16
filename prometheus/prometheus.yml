@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s 
+
+scrape_configs:
+  - job_name: 'metabase'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['metabase:3032']

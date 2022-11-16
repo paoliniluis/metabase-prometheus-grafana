@@ -1,0 +1,49 @@
+version: '3.9'
+services:
+  metabase:
+    image: metabase/metabase-enterprise:v1.44.6
+    container_name: metabase
+    hostname: metabase
+    volumes: 
+      - /dev/urandom:/dev/random:ro
+    ports:
+      - 3000:3000
+    environment: 
+      - "MB_PROMETHEUS_SERVER_PORT=3032"
+    cpus: 1
+    mem_limit: 2048m
+    networks: 
+      - metanet
+    healthcheck:
+      test: curl --fail -I http://localhost:3000/api/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  prometheus:
+    image: prom/prometheus:v2.37.1
+    container_name: prometheus
+    hostname: prometheus
+    ports:
+    - 9090:9090
+    networks:
+    - metanet
+    cpus: 1
+    mem_limit: 128m
+    volumes:
+      - $PWD/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana-oss:9.2.1
+    container_name: grafana
+    hostname: grafana
+    ports:
+      - 3001:3000
+    networks: 
+      - metanet
+    cpus: 1
+    mem_limit: 128m
+    volumes:
+      - $PWD/grafana/:/etc/grafana/provisioning/datasources/
+      - $PWD/grafana/defaults.ini:/etc/grafana/grafana.ini
+networks: 
+  metanet:
+    driver: bridge
